@@ -1,5 +1,8 @@
 $onMultiR
 $gdxLoadAll 'base_input_data2.gdx';
+$offMulti
+
+GDATA(GGG,GDATASET_numerical) = GDATA_numerical(GGG, GDATASET_numerical);
 
 $ifi %BB4%==yes $ifi     exist 'Balmorelbb4.inc'  $include  'Balmorelbb4_finish.inc';
 $ifi %BB4%==yes $ifi not exist 'Balmorelbb4.inc'  $include  '../../base/model/Balmorelbb4_finish.inc';
