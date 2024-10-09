@@ -148,7 +148,7 @@ $if     EXIST '../data/FDATASET.inc' $INCLUDE      '../data/FDATASET.inc';
 $if not EXIST '../data/FDATASET.inc' $INCLUDE '../../base/data/FDATASET.inc';
 %semislash%;
 
-PARAMETER FDATA(FFF,FDATASET)    "Fuel specific values" %semislash%
+PARAMETER FDATA(TYPES,FDATASET)    "Fuel specific values" %semislash%
 $if     EXIST '../data/FDATA.inc' $INCLUDE      '../data/FDATA.inc';
 $if not EXIST '../data/FDATA.inc' $INCLUDE '../../base/data/FDATA.inc';
 %semislash%;
@@ -167,14 +167,38 @@ $if     EXIST '../data/GDATASET.inc' $INCLUDE      '../data/GDATASET.inc';
 $if not EXIST '../data/GDATASET.inc' $INCLUDE '../../base/data/GDATASET.inc';
 %semislash%;
 
-SET TECH_GROUP     "Technology Groups" %semislash%
+SET GDATASET_numerical     "Generation technology numerical data" %semislash%
+$if     EXIST '../data/GDATASET_numerical.inc' $INCLUDE      '../data/GDATASET_numerical.inc';
+$if not EXIST '../data/GDATASET_numerical.inc' $INCLUDE '../../base/data/GDATASET_numerical.inc';
+%semislash%;
+
+SET GDATASET_categorical     "Generation technology categorical data" %semislash%
+$if     EXIST '../data/GDATASET_categorical.inc' $INCLUDE      '../data/GDATASET_categorical.inc';
+$if not EXIST '../data/GDATASET_categorical.inc' $INCLUDE '../../base/data/GDATASET_categorical.inc';
+%semislash%;
+
+$onMulti 
+SET GDTYPES(TYPES<)     "Generation type data" %semislash%
+$if     EXIST '../data/GDTYPES.inc' $INCLUDE      '../data/GDTYPES.inc';
+$if not EXIST '../data/GDTYPES.inc' $INCLUDE '../../base/data/GDTYPES.inc';
+%semislash%;
+$offMulti
+
+PARAMETER GDTyPES_VALUE(TYPES)     "Generation type data" %semislash%
+$if     EXIST '../data/GDTYPES_VALUE.inc' $INCLUDE      '../data/GDTYPES_VALUE.inc';
+$if not EXIST '../data/GDTYPES_VALUE.inc' $INCLUDE '../../base/data/GDTYPES_VALUE.inc';
+%semislash%;
+
+$onMulti 
+SET TECH_GROUP(TYPES<)     "Technology Groups" %semislash%
 $if     EXIST '../data/TECH_GROUP.inc' $INCLUDE      '../data/TECH_GROUP.inc';
 $if not EXIST '../data/TECH_GROUP.inc' $INCLUDE '../../base/data/TECH_GROUP.inc';
 %semislash%;
+$offMulti 
 *------------- Any TECH_GROUP additions for addon to be placed here: ----------------
 $include "../../base/addons/_hooks/tech_groupadditions.inc"
 
-PARAMETER TECH_GROUP_VALUE(TECH_GROUP)         "Technology Groups value" %semislash%
+PARAMETER TECH_GROUP_VALUE(TYPES)         "Technology Groups value" %semislash%
 $if     EXIST '../data/TECH_GROUP_VALUE.inc' $INCLUDE      '../data/TECH_GROUP_VALUE.inc';
 $if not EXIST '../data/TECH_GROUP_VALUE.inc' $INCLUDE '../../base/data/TECH_GROUP_VALUE.inc';
 %semislash%;
@@ -185,13 +209,13 @@ PARAMETER TECHGROUP_DEUSER(TECH_GROUP,DEUSER) "assignment of tech groups into us
 $if     EXIST '../data/TECHGROUP_DEUSER.inc' $INCLUDE      '../data/TECHGROUP_DEUSER.inc';
 $if not EXIST '../data/TECHGROUP_DEUSER.inc' $INCLUDE '../../base/data/TECHGROUP_DEUSER.inc';
 %semislash%;
-
+$onMulti 
 SET SUBTECH_GROUP     "SubTechnology Groups" %semislash%
 $if     EXIST '../data/SUBTECH_GROUP.inc' $INCLUDE      '../data/SUBTECH_GROUP.inc';
 $if not EXIST '../data/SUBTECH_GROUP.inc' $INCLUDE '../../base/data/SUBTECH_GROUP.inc';
 %semislash%;
-
-PARAMETER SUBTECH_GROUP_VALUE(SUBTECH_GROUP)         "Technology Groups value" %semislash%
+$offMulti 
+PARAMETER SUBTECH_GROUP_VALUE(TYPES)         "Technology Groups value" %semislash%
 $if     EXIST '../data/SUBTECH_GROUP_VALUE.inc' $INCLUDE      '../data/SUBTECH_GROUP_VALUE.inc';
 $if not EXIST '../data/SUBTECH_GROUP_VALUE.inc' $INCLUDE '../../base/data/SUBTECH_GROUP_VALUE.inc';
 %semislash%;

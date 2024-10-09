@@ -55,13 +55,17 @@ SET T(TTT)            "Time periods within the season in the simulation";
 SET TWORKDAY(TTT)     "Time segments, T, in workdays";
 SET TWEEKEND(TTT)     "Time segments, T, in weekends";
 * Technology and fuel related:
+SET TYPES            "Collection of categories for technologies";
 SET GGG               "All generation technologies";
 SET GDATASET          "Generation technology data";
-SET FFF               "Fuels";
+SET GDATASET_numerical(GDATASET);
+SET GDATASET_categorical(GDATASET);
+SET FFF(TYPES<)               "Fuels"; !! Now a subset of types (tg 9/10/24)
 SET FDATASET          "Characteristics of fuels";
 SET HYRSDATASET       "Characteristics of hydro reservoirs";
 SET G(GGG)            "Generation technologies in the simulation";
 SET AGKN(AAA,GGG)     "Areas for possible location of new technologies";
+
 * Demand related:
 SET DEUSER            "Electricity demand user groups. Set must include element RESE for holding demand not included in any other user group";
 SET DHUSER            "Heat demand user groups. Set must include element RESH for holding demand not included in any other user group";
@@ -283,6 +287,11 @@ PARAMETER F_T(YYY,CCCRRRAAA,FFF,SSS,TTT) "Aggregated fuel use by year, season, T
 *Fuel price
 PARAMETER FUELPRICE_EXC(YYY,AAA,FFF)             "Fuel prices to be transferred to future runs(Money/GJ)";
 
+*Splitted GDATA parameters
+
+PARAMETER GDATA_numerical(GGG,GDATASET);
+
+
 *-------------------------------------------------------------------------------
 *---- End: Declaration of parameters for "export_results"  -----------------------------------------------
 *-------------------------------------------------------------------------------
@@ -290,6 +299,16 @@ PARAMETER FUELPRICE_EXC(YYY,AAA,FFF)             "Fuel prices to be transferred 
 * All remaining (cf. ... .inc above) data files af included from the following file
 $ifi     exist "bb4datainc.inc" $include                   "bb4datainc.inc";
 $ifi not exist "bb4datainc.inc" $include  "../../base/model/bb4datainc.inc";
+
+*Splitted GDATA parameters
+
+GDATA_numerical(GGG,GDATASET) $ GDATASET_numerical(GDATASET)=GDATA(GGG,GDATASET);
+SET GDATA_categorical(GGG, GDATASET_categorical, TYPES);
+
+GDATA_categorical(GGG,'GDTYPE',TYPES) $ (GDATA(GGG,'GDTYPE') and(GDATA(GGG,'GDTYPE') EQ GDTYPES_VALUE(TYPES))) = YES;
+GDATA_categorical(GGG,'GDFUEL',TYPES) $ (GDATA(GGG,'GDFUEL') and(GDATA(GGG,'GDFUEL') EQ FDATA(TYPES,'FDACRONYM'))) = YES;
+GDATA_categorical(GGG,'GDTECHGROUP',TYPES) $ (GDATA(GGG,'GDTECHGROUP') and(GDATA(GGG,'GDTECHGROUP') EQ TECH_GROUP_VALUE(TYPES))) = YES;
+GDATA_categorical(GGG,'GDSUBTECHGROUP',TYPES) $ (GDATA(GGG,'GDSUBTECHGROUP') and (GDATA(GGG,'GDSUBTECHGROUP') EQ SUBTECH_GROUP_VALUE(TYPES))) = YES;
 
 * GKRATE 
 $ifi %GKRATE_DOL%==AAA_GGG_SSS       GKRATE(IA,G,S)$(GKRATE(IA,G,S) EQ 1) = 0; !! Should give no reduction in size unless the data files does not exploit that default value is 1.
