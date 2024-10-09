@@ -1,7 +1,7 @@
 * File Balmorel.gms
 $TITLE Balmorel version 4.03 (March 2022; latest 20220318)
 
-SCALAR IBALVERSN 'This version of Balmorel' /403.20220318/;
+SCALAR IBALVERSN 'This version of Balmorel' /503.20220318/;
 * Efforts have been made to make a good model.
 * However, most probably the model is incomplete and subject to errors.
 * It is distributed with the idea that it will be usefull anyway,
@@ -118,4 +118,4 @@ $ifi not dexist "../output/temp"         execute 'mkdir -p "../output/temp"';
 $ifi %BB4%==yes $ifi     exist 'Balmorelbb4_ReadData.inc'  $include  'Balmorelbb4_ReadData.inc';
 $ifi %BB4%==yes $ifi not exist 'Balmorelbb4_ReadData.inc'  $include  '../../base/model/Balmorelbb4_ReadData.inc';
 
-execute_unload 'base_input_data.gdx', DE, FUELPRICE;
+execute_unload 'base_input_data.gdx', DE, GDATA_numerical, GDATA_categorical;

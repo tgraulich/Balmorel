@@ -1,6 +1,6 @@
 * File BalmorelBB4.inc for handling the Balbase4 model in Balmorel.
 * First version 2009(hr) based on DTU Master project by Jesper Felstedt &QHYDROGEN_ Morten Middelboe Pedersen under supervision by Hans Ravn.
-* Present version 20150428(hr), 20150430(Weiming), 20151217(hr), 20160810(hr), 20170419 (Juan and hr).
+* Present version 20150428(hr), 20150430(Weiming), 20151217(hr), 20160810(hr), 20170419 (Juan and hr), 20240624 (Mathias and Ioannis)
 * Thanks to Weiming Xiong, Andreas von Recklinghausen and others for good contributions.
 
 * The model is still under development.
@@ -55,13 +55,17 @@ SET T(TTT)            "Time periods within the season in the simulation";
 SET TWORKDAY(TTT)     "Time segments, T, in workdays";
 SET TWEEKEND(TTT)     "Time segments, T, in weekends";
 * Technology and fuel related:
+SET TYPES            "Collection of categories for technologies";
 SET GGG               "All generation technologies";
 SET GDATASET          "Generation technology data";
-SET FFF               "Fuels";
+SET GDATASET_numerical(GDATASET);
+SET GDATASET_categorical(GDATASET);
+SET FFF(TYPES<)               "Fuels"; !! Now a subset of types (tg 9/10/24)
 SET FDATASET          "Characteristics of fuels";
 SET HYRSDATASET       "Characteristics of hydro reservoirs";
 SET G(GGG)            "Generation technologies in the simulation";
 SET AGKN(AAA,GGG)     "Areas for possible location of new technologies";
+
 * Demand related:
 SET DEUSER            "Electricity demand user groups. Set must include element RESE for holding demand not included in any other user group";
 SET DHUSER            "Heat demand user groups. Set must include element RESH for holding demand not included in any other user group";
@@ -98,7 +102,7 @@ ALIAS(CCCRRRAAA,CCCRRRAAAALIAS);
 * They correspond in a one-to-one way with the internal sets IGCND, IGBRP etc. below.
 * They should generally not be changed.
 * New technology types may be added only if also code specifying their properties are added.
-ACRONYMS  GCND, GBPR, GEXT, GHOB, GETOH, GHSTO, GESTO, GHSTOS, GESTOS, GHYRS, GHYRR, GWND, GSOLE, GSOLH, GWAVE, GHS;
+ACRONYMS  GCND, GBPR, GEXT, GHOB, GETOH, GHSTO, GESTO, GHSTOS, GESTOS, GHYRS, GHYRR, GWND, GSOLE, GSOLH, GWAVE;
 
 * ACRONYMS for user defined fuels will be given as part of file FFF.inc
 * ACRONYMS for other purposes are defined in ACRONYMS.inc
@@ -118,7 +122,7 @@ ACRONYMS  GCND, GBPR, GEXT, GHOB, GETOH, GHSTO, GESTO, GHSTOS, GESTOS, GHYRS, GH
 *--- End: Definitions of SETS and ACRONYMS that are given in the $included files
 *-------------------------------------------------------------------------------
 
-SET IS3(S)     "Balbase3: present season simulated; other models: identical to S";
+SET IS3(S)     "Present seasons simulated; if rolling seasons not activated identical to S";
 SET IS3_NEXT(S) "Present seasons and  next season not simulated; if rolling seasons not activated  identical to S";
 SET IS3_ONLYNEXT(S) "Next season not simulated; if rolling seasons not activated identical to S";
 SET IS33(S,S)  "Mapping of S (first index) to the following S (second index)";
@@ -151,20 +155,6 @@ ALIAS (T,ITALIAS,ITALIAS2,ITALIAS3);
 *----- End: Definitions of SETS and ALIASES that are needed for data entry:
 *-------------------------------------------------------------------------------
 
-
-*-------------------------------------------------------------------------------
-* The choice of model made in the balopt.opt fil is checked here,
-* and basic sets concerning time within the year are reconstructed accordingly if needed:
-
-$ifi %bb3%==yes $KILL T
-$ifi %bb3%==yes SET T(TTT)          /T001*T168/;
-$ifi %bb3%==yes $KILL TWORKDAY
-$ifi %bb3%==yes $KILL TWEEKEND
-$ifi %bb3%==yes SET TWORKDAY(TTT)   /T001*T120/;
-$ifi %bb3%==yes SET TWEEKEND(TTT)   /T121*T168/;
-*-------------------------------------------------------------------------------
-
-
 *------------------------------------------------------------------------------
 * End: Declaration of internal sets
 *------------------------------------------------------------------------------
@@ -191,7 +181,6 @@ SET IGCND(G)               "Condensing technologies";                           
 SET IGBPR(G)               "Back pressure technologies";                        !! Corresponding to acronym GBPR
 SET IGEXT(G)               "Extraction technologies";                           !! Corresponding to acronym GEXT
 SET IGHOB(G)               "Heat-only boilers";                                 !! Corresponding to acronym GHOB
-SET IGHS(G)				   "Heat savings";										!! Corresponding to acronym GHS
 SET IGETOH(G)              "Electric heaters, heatpumps, electrolysis plants";  !! Corresponding to acronym GETOH
 SET IGHSTO(G)              "Intra-seasonal heat storage technologies";          !! Corresponding to acronym GHSTO
 SET IGHSTOS(G)             "Inter-seasonal heat storage technologies";          !! Corresponding to acronym GHSTOS
@@ -204,7 +193,6 @@ SET IGHYRR(G)              "Hydropower run-of-river no reservoir";              
 SET IGWND(G)               "Wind power technologies";                           !! Corresponding to acronym GWND
 SET IGSOLE(G)              "Solar electrical power technologies";               !! Corresponding to acronym GSOLE
 SET IGSOLH(G)              "Solar heat technologies";                           !! Corresponding to acronym GSOLH
-SET IGVRE(G)                            "VRE technologies";
 SET IGWAVE(G)              "Wave power technologies";                           !! Corresponding to acronym GWAVE
 SET IGHH(G)                "Technologies generating heat-only";
 SET IGHHNOSTO(G)           "Technologies generating heat-only, except storage";
@@ -299,6 +287,11 @@ PARAMETER F_T(YYY,CCCRRRAAA,FFF,SSS,TTT) "Aggregated fuel use by year, season, T
 *Fuel price
 PARAMETER FUELPRICE_EXC(YYY,AAA,FFF)             "Fuel prices to be transferred to future runs(Money/GJ)";
 
+*Splitted GDATA parameters
+
+PARAMETER GDATA_numerical(GGG,GDATASET);
+
+
 *-------------------------------------------------------------------------------
 *---- End: Declaration of parameters for "export_results"  -----------------------------------------------
 *-------------------------------------------------------------------------------
@@ -307,6 +300,12 @@ PARAMETER FUELPRICE_EXC(YYY,AAA,FFF)             "Fuel prices to be transferred 
 $ifi     exist "bb4datainc.inc" $include                   "bb4datainc.inc";
 $ifi not exist "bb4datainc.inc" $include  "../../base/model/bb4datainc.inc";
 
-* Save GDATA as csv, because it has string values that are converted to large integers
-execute_unload 'GDATA.gdx', GDATA;
-$call gdxdump GDATA.gdx output=GDATA.csv symb=GDATA format=csv
+*Splitted GDATA parameters
+
+GDATA_numerical(GGG,GDATASET) $ GDATASET_numerical(GDATASET)=GDATA(GGG,GDATASET);
+SET GDATA_categorical(GGG, GDATASET_categorical, TYPES);
+
+GDATA_categorical(GGG,'GDTYPE',TYPES) $ (GDATA(GGG,'GDTYPE') and(GDATA(GGG,'GDTYPE') EQ GDTYPES_VALUE(TYPES))) = YES;
+GDATA_categorical(GGG,'GDFUEL',TYPES) $ (GDATA(GGG,'GDFUEL') and(GDATA(GGG,'GDFUEL') EQ FDATA(TYPES,'FDACRONYM'))) = YES;
+GDATA_categorical(GGG,'GDTECHGROUP',TYPES) $ (GDATA(GGG,'GDTECHGROUP') and(GDATA(GGG,'GDTECHGROUP') EQ TECH_GROUP_VALUE(TYPES))) = YES;
+GDATA_categorical(GGG,'GDSUBTECHGROUP',TYPES) $ (GDATA(GGG,'GDSUBTECHGROUP') and (GDATA(GGG,'GDSUBTECHGROUP') EQ SUBTECH_GROUP_VALUE(TYPES))) = YES;
