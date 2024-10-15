@@ -9,7 +9,7 @@
 **/*.bak
 **/*.out
 **/*.bat
-**/data/
+base/data/
 **/*.gpr
 **/*.dat
 **/*.cmd
@@ -29,3 +29,4 @@ base/data/README.md
 *.log~3
 build
 %batfileMERGEWITHBASE%
+/Balmorel_GSA/
