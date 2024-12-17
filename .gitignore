@@ -30,3 +30,4 @@ base/data/README.md
 build
 %batfileMERGEWITHBASE%
 /Balmorel_GSA/
+*.sh
