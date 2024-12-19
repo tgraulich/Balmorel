@@ -14,7 +14,6 @@ base/data/
 **/*.gpr
 **/*.dat
 **/*.cmd
-/data/*.inc
 **/model/Balmorel.l*
 **/output/economic/*.*
 /base/bui/gamsscr/*.*
