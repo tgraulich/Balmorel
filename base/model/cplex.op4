@@ -9,6 +9,7 @@
 
 LPmethod  4
 advind 0
+Threads  -1
 predual -1
 
 
